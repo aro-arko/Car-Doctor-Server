@@ -44,10 +44,22 @@ async function run() {
       const query = { _id: new ObjectId(id) };
 
       const options = {
-        projection: { title: 1, price: 1 },
+        projection: { title: 1, price: 1, _id: 1, img: 1 },
       };
 
       const result = await serviceCollection.findOne(query, options);
+      res.send(result);
+    });
+
+    app.get("/checkouts", async (req, res) => {
+      // console.log(req.query.email);
+
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };
+      }
+
+      const result = await checkOutCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -56,6 +68,29 @@ async function run() {
       const data = req.body;
       console.log(data);
       const result = await checkOutCollection.insertOne(data);
+      res.send(result);
+    });
+
+    app.delete("/checkouts/:id", async (req, res) => {
+      const id = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await checkOutCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    app.patch("/checkouts/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const bookingConfirmation = req.body;
+      console.log(bookingConfirmation);
+
+      const updatedDoc = {
+        $set: {
+          status: req.body.status,
+        },
+      };
+
+      const result = await checkOutCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
 
